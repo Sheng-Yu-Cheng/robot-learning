@@ -1,0 +1,21 @@
+# Python and package metadata
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+.venv/
+
+# Local settings and credentials
+.vscode/
+.env
+.env.*
+!.env.example
+
+# Generated experiment artifacts
+outputs/
+checkpoints/
+logs/
+wandb/

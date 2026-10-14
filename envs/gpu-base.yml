@@ -1,0 +1,23 @@
+# Based on gpu-base verified on 2026-10-14 (Python 3.11.17).
+# NVIDIA CUDA 12.8 PyTorch for supported Windows/Linux machines.
+# System libraries and platform-specific builds are resolved by conda.
+name: gpu-base
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+  - pip=26.2.1
+  - pip:
+      - --extra-index-url https://download.pytorch.org/whl/cu128
+      - filelock==3.32.3
+      - fsspec==2026.7.0
+      - Jinja2==3.1.6
+      - MarkupSafe==3.0.3
+      - mpmath==1.3.0
+      - networkx==3.6.1
+      - packaging==26.3
+      - setuptools==78.1.0
+      - sympy==1.14.0
+      - torch==2.11.0+cu128
+      - typing_extensions==4.16.0
+      - wheel==0.47.0
