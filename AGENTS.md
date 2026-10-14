@@ -9,6 +9,7 @@
 - `paradigms/`：問題設定、假設、目標、概念與相關項目的連結。
 - `datasets/`：資料來源、schema、切分、前處理與下載／載入程式。
 - `benchmarks/`：任務、任務集合、評估協定、指標與分數解讀。
+- `benchmark/maniskill/`：依使用者指定路徑加入的 ManiSkill Git submodule；與 `benchmarks/` 知識目錄分開。
 - `experiments/`：實際執行的實驗，負責環境／模擬器／機器人設定、訓練迴圈、超參數、checkpoint、繪圖與評估。
 - `tests/`：跨項目的驗證；項目專屬測試可放在項目自己的 `tests/`。
 
@@ -22,6 +23,11 @@
 6. 說明與程式放在一起；新增項目時撰寫 README。實驗應記錄依賴、執行命令、資料／模擬器要求、設定、seed 與評估方式。
 7. 大型資料集、checkpoint、影片、紀錄及產生的輸出不加入 Git。`.gitignore` 規則可隨實際需求調整。
 8. 頂層 `setup.py` 使用 namespace package 封裝；各實驗另行記錄自己的額外依賴。現有 AI-Lib 程式保留原路徑與 import，後續新增項目再依主要目的安排位置。
+
+## 外部專案
+
+- 第三方專案可使用 Git submodule 引入，透過主儲存庫的 gitlink 固定上游 commit；初次取回使用 `git submodule update --init --recursive`。
+- 修改 submodule 內檔案前先閱讀其適用規則；未要求更新上游版本時，維持主專案固定的 commit。
 
 ## 環境與驗證
 

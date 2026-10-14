@@ -1,0 +1,3 @@
+[submodule "benchmark/maniskill"]
+	path = benchmark/maniskill
+	url = https://github.com/mani-skill/ManiSkill.git

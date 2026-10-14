@@ -26,6 +26,8 @@ robot-learning/
 ├── paradigms/
 ├── datasets/
 ├── benchmarks/
+├── benchmark/
+│   └── maniskill/  # Git submodule
 ├── experiments/
 ├── tests/
 ├── README.md
@@ -668,3 +670,25 @@ NumPy and Gymnasium are not included; the existing MountainCar experiment needs
 them. This YAML specifies compatible dependencies rather than identical package
 builds or wheel hashes, so a rebuilt environment still needs validation.
 The conversion does not modify the existing `gpu-base` environment.
+
+## External Benchmark Projects
+
+[ManiSkill](https://github.com/mani-skill/ManiSkill) is included as a Git submodule
+at `benchmark/maniskill/`. This path is distinct from the existing `benchmarks/`
+knowledge entries. The parent repository pins the upstream commit rather than
+copying the upstream source files.
+
+When cloning this repository:
+
+```sh
+git clone --recurse-submodules <repository-url>
+```
+
+For an existing checkout:
+
+```sh
+git submodule update --init --recursive
+```
+
+These commands retrieve the pinned source. Installing ManiSkill and configuring
+its runtime environment are separate steps; refer to its own documentation.
