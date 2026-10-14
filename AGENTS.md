@@ -31,6 +31,8 @@
 
 ## 環境與驗證
 
+- `maniskill` 環境已於 2026-10-15 建立並以 editable 模式安裝 `benchmark/maniskill/`；依賴版本見 `envs/maniskill.yml`。Windows 使用 `num_envs=1`、`sim_backend="cpu"`、`render_backend="cpu"`；CUDA 計算、CPU 模擬與 RGB 離屏渲染已通過。此版本不支援 Windows GPU 並行物理模擬，`render_backend="gpu"` 影像回讀在本機造成原生崩潰。
+
 - 環境由使用者自行處理；除非使用者另行要求，不建立／修改 conda 環境、不安裝套件、不啟動訓練。
 - 搬入的程式依賴 PyTorch 與 Gymnasium；`train.sh` 保留來源的 conda 環境設定，不在搬移時自動執行。
 - `gpu-base` 已於 2026-10-14 通過 GPU 矩陣運算、CPU 結果比對與反向傳播驗證。可重建的環境規格位於 `envs/gpu-base.yml`（Python 3.11 與固定 pip 套件版本；系統套件由 conda 依平台解析，GPU PyTorch 適用於支援的 Windows／Linux NVIDIA 環境）；重建／clone 命令見 README。基底未安裝 NumPy 與 Gymnasium，實驗需要時在獨立環境補上。不要修改基底環境；除非使用者要求，僅使用已有環境進行必要驗證。

@@ -692,3 +692,37 @@ git submodule update --init --recursive
 
 These commands retrieve the pinned source. Installing ManiSkill and configuring
 its runtime environment are separate steps; refer to its own documentation.
+
+## ManiSkill Environment
+
+The `maniskill` conda environment is installed from the local submodule in editable
+mode. Verified on Windows on 2026-10-15 with Python 3.11.17, ManiSkill 3.0.1,
+SAPIEN 3.0.3, and PyTorch 2.11.0+cu128. The `gpu-base` environment is unchanged.
+
+Activate and run a headless random-action episode from the repository root:
+
+```sh
+conda activate maniskill
+python -m mani_skill.examples.demo_random_action -e PushCube-v1 --sim-backend cpu --render-backend cpu --render-mode rgb_array --quiet
+```
+
+For Python use `num_envs=1`, `sim_backend="cpu"`, and `render_backend="cpu"`.
+CUDA PyTorch forward/backward, ten CPU simulation steps, and offscreen RGB
+rendering at 512 x 512 passed. Windows does not support GPU parallel physics in
+this version. The CUDA image-readback path (`render_backend="gpu"`) caused a
+native access violation on this machine; `render_backend="cpu"` works.
+SAPIEN warns that optional Pinocchio functionality is unavailable; the tested
+PushCube task does not need it.
+
+To rebuild an independent environment from the saved package versions:
+
+```sh
+git submodule update --init --recursive
+conda env create -n maniskill-exp -f envs/maniskill.yml
+conda activate maniskill-exp
+python -m pip install --no-build-isolation -e ./benchmark/maniskill
+```
+
+The YAML contains dependencies; the final command installs the pinned submodule
+source from this checkout. Large task assets are separate downloads and are not
+included in the environment specification.

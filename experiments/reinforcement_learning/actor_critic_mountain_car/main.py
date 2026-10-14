@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from benchmarks.gymnasium.continuous_mountain_car import ContinuousMountainCar
+from benchmark.gymnasium.continuous_mountain_car import ContinuousMountainCar
 from methods.reinforcement_learning.actor_critic.network import ActorCriticNetwork
 from methods.reinforcement_learning.advantage_estimator.advantage_estimator import GeneralizedAdvantageEstimator
 
