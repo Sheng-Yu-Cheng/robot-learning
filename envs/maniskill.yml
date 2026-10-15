@@ -1,5 +1,5 @@
 # Verified on Windows 2026-10-15. Install the local ManiSkill submodule after creation.
-# From the repository root: python -m pip install --no-build-isolation -e ./benchmark/maniskill
+# From the repository root: python -m pip install --no-build-isolation -e ./benchmark/maniskill/maniskill
 name: maniskill
 channels:
   - defaults

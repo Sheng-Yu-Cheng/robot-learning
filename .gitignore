@@ -7,6 +7,7 @@ __pycache__/
 build/
 dist/
 .venv/
+__init__.py
 
 # Local settings and credentials
 .vscode/
@@ -15,7 +16,7 @@ dist/
 !.env.example
 
 # Generated experiment artifacts
-outputs/
+**/outputs/
 checkpoints/
 logs/
 wandb/

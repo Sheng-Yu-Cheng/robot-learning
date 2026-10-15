@@ -9,7 +9,7 @@
 - `paradigms/`：問題設定、假設、目標、概念與相關項目的連結。
 - `datasets/`：資料來源、schema、切分、前處理與下載／載入程式。
 - `benchmarks/`：任務、任務集合、評估協定、指標與分數解讀。
-- `benchmark/maniskill/`：依使用者指定路徑加入的 ManiSkill Git submodule；與 `benchmarks/` 知識目錄分開。
+- `benchmark/maniskill/`：ManiSkill 整合目錄，包含本專案的 `replay.py`、說明與 task 輸出；上游 Git submodule 位於 `benchmark/maniskill/maniskill/`。
 - `experiments/`：實際執行的實驗，負責環境／模擬器／機器人設定、訓練迴圈、超參數、checkpoint、繪圖與評估。
 - `tests/`：跨項目的驗證；項目專屬測試可放在項目自己的 `tests/`。
 
@@ -29,9 +29,16 @@
 - 第三方專案可使用 Git submodule 引入，透過主儲存庫的 gitlink 固定上游 commit；初次取回使用 `git submodule update --init --recursive`。
 - 修改 submodule 內檔案前先閱讀其適用規則；未要求更新上游版本時，維持主專案固定的 commit。
 
+## 遠端執行與渲染呈現
+
+- 使用者透過遠端環境操作；所有需要 render 的範例、模擬與評估，必須以離屏（headless／offscreen）方式執行，將過程錄製為影片（優先使用 MP4）供使用者查看。
+- 不依賴 GUI 視窗、互動式 viewer 或 `render_mode="human"` 呈現結果；使用 `rgb_array` 等可擷取影格的模式，記錄連續影格並設定適當 FPS，輸出可播放的影片。單張截圖不能取代影片。
+- 不在 project root 建立 `outputs/` 或 `output/`。輸出放在各 benchmark／實驗自己的目錄；ManiSkill 統一使用 `benchmark/maniskill/outputs/<TaskID>/`，下載資料放 `raw/<source>/`，回放批次放 `replays/<source>/<run-name>/`，每批影片放 `videos/`。新 task 沿用此結構，批次名稱須能區分重跑且不可覆寫舊結果。影片和大型資料須被 Git 忽略；完成後確認影片非空、影格數與播放時長合理，並提供影片檔案連結。
+- 渲染仍須遵循本機平台限制；目前 Windows ManiSkill 使用 `num_envs=1`、`sim_backend="cpu"`、`render_backend="cpu"`。
+
 ## 環境與驗證
 
-- `maniskill` 環境已於 2026-10-15 建立並以 editable 模式安裝 `benchmark/maniskill/`；依賴版本見 `envs/maniskill.yml`。Windows 使用 `num_envs=1`、`sim_backend="cpu"`、`render_backend="cpu"`；CUDA 計算、CPU 模擬與 RGB 離屏渲染已通過。此版本不支援 Windows GPU 並行物理模擬，`render_backend="gpu"` 影像回讀在本機造成原生崩潰。
+- `maniskill` 環境已於 2026-10-15 建立並以 editable 模式安裝 ManiSkill；上游目前位於 `benchmark/maniskill/maniskill/`，移動前的 editable 路徑可能需要使用者重新安裝指向新位置；`replay.py` 已直接載入本地 submodule；依賴版本見 `envs/maniskill.yml`。Windows 使用 `num_envs=1`、`sim_backend="cpu"`、`render_backend="cpu"`；CUDA 計算、CPU 模擬與 RGB 離屏渲染已通過。此版本不支援 Windows GPU 並行物理模擬，`render_backend="gpu"` 影像回讀在本機造成原生崩潰。
 
 - 環境由使用者自行處理；除非使用者另行要求，不建立／修改 conda 環境、不安裝套件、不啟動訓練。
 - 搬入的程式依賴 PyTorch 與 Gymnasium；`train.sh` 保留來源的 conda 環境設定，不在搬移時自動執行。

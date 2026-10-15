@@ -27,7 +27,8 @@ robot-learning/
 ├── datasets/
 ├── benchmarks/
 ├── benchmark/
-│   └── maniskill/  # Git submodule
+│   └── maniskill/  # integration scripts and local task outputs
+│       └── maniskill/  # upstream Git submodule
 ├── experiments/
 ├── tests/
 ├── README.md
@@ -674,7 +675,7 @@ The conversion does not modify the existing `gpu-base` environment.
 ## External Benchmark Projects
 
 [ManiSkill](https://github.com/mani-skill/ManiSkill) is included as a Git submodule
-at `benchmark/maniskill/`. This path is distinct from the existing `benchmarks/`
+at `benchmark/maniskill/maniskill/`. The parent directory owns integration scripts and task outputs. This path is distinct from the existing `benchmarks/`
 knowledge entries. The parent repository pins the upstream commit rather than
 copying the upstream source files.
 
@@ -703,7 +704,7 @@ Activate and run a headless random-action episode from the repository root:
 
 ```sh
 conda activate maniskill
-python -m mani_skill.examples.demo_random_action -e PushCube-v1 --sim-backend cpu --render-backend cpu --render-mode rgb_array --quiet
+python -m mani_skill.examples.demo_random_action -e PushCube-v1 --sim-backend cpu --render-backend cpu --render-mode rgb_array --record-dir benchmark/maniskill/outputs/PushCube-v1/previews/random_actions --quiet
 ```
 
 For Python use `num_envs=1`, `sim_backend="cpu"`, and `render_backend="cpu"`.
@@ -720,9 +721,16 @@ To rebuild an independent environment from the saved package versions:
 git submodule update --init --recursive
 conda env create -n maniskill-exp -f envs/maniskill.yml
 conda activate maniskill-exp
-python -m pip install --no-build-isolation -e ./benchmark/maniskill
+python -m pip install --no-build-isolation -e ./benchmark/maniskill/maniskill
 ```
 
 The YAML contains dependencies; the final command installs the pinned submodule
 source from this checkout. Large task assets are separate downloads and are not
 included in the environment specification.
+
+ManiSkill data and recorded demonstrations are managed under `benchmark/maniskill/outputs/<TaskID>/`. See [the integration guide](benchmark/maniskill/README.md) for task/source/run organization and headless video export. Do not create project-root output directories.
+
+## Action Policy Models and Demonstration Data
+
+- [Diffusion Policy and Flow Matching Policy](models/policy/action_policy/README.md): PyTorch action-sequence models with training losses, samplers, and numerical tests.
+- [ManiSkill demonstration datasets](benchmark/maniskill/README.md): download commands, file format, preprocessing requirements, and training-window alignment.
