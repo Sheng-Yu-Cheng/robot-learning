@@ -1,79 +1,80 @@
-# 專案組織與開發原則
+# 專案執行原則
 
-本專案是 Robot Learning 的可執行知識庫，組織方式參考 `~/ai-lib/README.md`。修改前先閱讀本專案 `README.md`，遵循以下規則。
+修改前先閱讀 README 與本文件，依實際目錄及使用者最新指示作業。
 
-## 目錄責任
+## 文件
 
-- `methods/`：可重用的方法與演算法實作。
-- `models/`：值得獨立研究或重用的模型架構；僅供單一方法使用的小型網路可留在方法內。
-- `paradigms/`：問題設定、假設、目標、概念與相關項目的連結。
-- `datasets/`：資料來源、schema、切分、前處理與下載／載入程式。
-- `benchmarks/`：任務、任務集合、評估協定、指標與分數解讀。
-- `benchmark/maniskill/`：ManiSkill 整合目錄，包含本專案的 `replay.py`、說明與 task 輸出；上游 Git submodule 位於 `benchmark/maniskill/maniskill/`。
-- `experiments/`：實際執行的實驗，負責環境／模擬器／機器人設定、訓練迴圈、超參數、checkpoint、繪圖與評估。
-- `tests/`：跨項目的驗證；項目專屬測試可放在項目自己的 `tests/`。
+- 根目錄 README 保持簡短，只介紹專案用途、概念與內容，不放路徑、目錄樹或操作命令。
+- AGENTS.md 只記錄可重複適用的開發與執行原則，不放個別案例的操作過程、命令、資料數量、超參數、套件版本、測試結果或歷史紀錄。
+- 新增或修改程式時，同步在其所屬項目的 README 說明功用與執行方式；入口程式提供可直接執行的命令，涵蓋必要環境、輸入參數、輸出位置與結果查看方式。非獨立入口的模組說明由哪個入口使用。
+- 訓練、評估、下載與資料處理指令放在各自所屬 README，保持與實際 CLI 一致；正式實驗配置與結果存於該次產出。
+- 每個新實驗版本都必須在所屬 experiment README.md 放置並說明整體 architecture 圖，以清楚的模組方塊與箭頭呈現資料流，不能只列檔案、文字流程或單一網路的層結構。
+- 架構圖須明確標示 task 的 observation／action I/O、資料處理、policy、policy 內實際使用的核心網路（例如 MLP 或 U-Net）、動作解碼／controller 與環境回饋；區分訓練與推論流程，標註關鍵張量維度、動作語意及各模組責任，內容須符合該版本實作。
+- 改變核心網路、模組組成、連接方式或 I/O 介面時，必須重畫並保留可辨識版本的架構圖；例如 U-Net 換成 MLP 屬於架構變更，不能沿用前圖。未動架構的 minor revision 可在 README 明確寫「架構與前一版本相同」，連結具體前版架構圖並說明本版差異，不必重畫。
+- 架構圖與可編輯來源放在所屬 experiment 的文件資源中，於 README 直接呈現或嵌入並納入版本控制；不要放在被忽略的執行 outputs，避免只在聊天回覆中提供。
+- 上游專案文件保持原樣，不將其原則誤套到主專案。
 
-## 實作規則
+## 組織與實作
 
-1. 直接使用頂層知識目錄，不增加 `src/robot_learning/` 包裝層。
-2. 項目名稱使用有意義的 `snake_case`；依主要教學／實作目的選擇唯一主位置，其他關係以 README 連結表示。
-3. 不要求統一的 `BaseEnv`、`BaseAgent`、`BaseAlgorithm`、`Trainer`、`Runner`、模型基底或生命週期 API。需要時使用框架原生抽象，例如 `torch.nn.Module`。
-4. 每個項目依需求安排檔案；不預先建立未使用的程式、設定或抽象。先實作，看到實際重複再抽取共用邏輯。
-5. 方法／模型放可重用邏輯，實驗擁有具體執行流程；不將單一環境的訓練流程硬塞進全專案框架。
-6. 說明與程式放在一起；新增項目時撰寫 README。實驗應記錄依賴、執行命令、資料／模擬器要求、設定、seed 與評估方式。
-7. 大型資料集、checkpoint、影片、紀錄及產生的輸出不加入 Git。`.gitignore` 規則可隨實際需求調整。
-8. 頂層 `setup.py` 使用 namespace package 封裝；各實驗另行記錄自己的額外依賴。現有 AI-Lib 程式保留原路徑與 import，後續新增項目再依主要目的安排位置。
+- 方法放可重用演算法，模型放可獨立研究的架構與策略，benchmark 放任務與整合，實驗擁有具體資料處理、環境、訓練與評估流程。
+- 採用有意義的名稱，讓每個概念有主要位置；避免重複分類及過深目錄。
+- 不新增全專案包裝層，不要求各種方法共享統一的基底類別、生命週期或訓練框架；必要時使用框架原生抽象。
+- 先實作，看到實際重複再抽共用邏輯；不預建未使用的目錄、設定、程式、佔位 README 或 .gitkeep。
 
-## 外部專案
+## Python 封裝與路徑
 
-- 第三方專案可使用 Git submodule 引入，透過主儲存庫的 gitlink 固定上游 commit；初次取回使用 `git submodule update --init --recursive`。
-- 修改 submodule 內檔案前先閱讀其適用規則；未要求更新上游版本時，維持主專案固定的 commit。
+- 將整個專案以 editable package 安裝到執行環境，第三方專案依其封裝方式另外安裝。
+- 使用 namespace packages，從定義所在模組明確 import，不用 __init__.py 轉匯出或集中引入。
+- 禁止用 sys.path、PYTHONPATH 或尋找 project root 再注入路徑處理 import；引入失敗時檢查環境與 editable 安裝。
+- 優先以模組方式執行入口。資料、checkpoint 與輸出位置透過 args 明確傳入，相對路徑以呼叫端工作目錄為準。
+- 不新增全域路徑設定檔，不依套件位置或 project root 自動推導資料及輸出位置。
+- 封裝排除產出、快取與第三方 submodule 原始碼；依賴按實驗需求管理。
 
-## 遠端執行與渲染呈現
+## 外部專案與環境
 
-- 使用者透過遠端環境操作；所有需要 render 的範例、模擬與評估，必須以離屏（headless／offscreen）方式執行，將過程錄製為影片（優先使用 MP4）供使用者查看。
-- 不依賴 GUI 視窗、互動式 viewer 或 `render_mode="human"` 呈現結果；使用 `rgb_array` 等可擷取影格的模式，記錄連續影格並設定適當 FPS，輸出可播放的影片。單張截圖不能取代影片。
-- 不在 project root 建立 `outputs/` 或 `output/`。輸出放在各 benchmark／實驗自己的目錄；ManiSkill 統一使用 `benchmark/maniskill/outputs/<TaskID>/`，下載資料放 `raw/<source>/`，回放批次放 `replays/<source>/<run-name>/`，每批影片放 `videos/`。新 task 沿用此結構，批次名稱須能區分重跑且不可覆寫舊結果。影片和大型資料須被 Git 忽略；完成後確認影片非空、影格數與播放時長合理，並提供影片檔案連結。
-- 渲染仍須遵循本機平台限制；目前 Windows ManiSkill 使用 `num_envs=1`、`sim_backend="cpu"`、`render_backend="cpu"`。
+- 第三方專案可用 Git submodule 引入，固定上游 commit；未獲更新授權時保留原版本。
+- 修改 submodule 內容前讀取其適用規則；整合程式與生成產物放在上游原始碼目錄外。
+- 未經使用者要求，不建立／修改環境、不安裝套件或啟動正式訓練；已獲授權的必要步驟可持續完成，不重複詢問。
+- 保持基底環境穩定，實驗使用獨立環境。確認本機平台、驅動與套件支援，不把 CUDA 模型運算、GPU 物理模擬及影像回讀視為同一能力。
 
-## 環境與驗證
+## 資料與產出
 
-- `maniskill` 環境已於 2026-10-15 建立並以 editable 模式安裝 ManiSkill；上游目前位於 `benchmark/maniskill/maniskill/`，移動前的 editable 路徑可能需要使用者重新安裝指向新位置；`replay.py` 已直接載入本地 submodule；依賴版本見 `envs/maniskill.yml`。Windows 使用 `num_envs=1`、`sim_backend="cpu"`、`render_backend="cpu"`；CUDA 計算、CPU 模擬與 RGB 離屏渲染已通過。此版本不支援 Windows GPU 並行物理模擬，`render_backend="gpu"` 影像回讀在本機造成原生崩潰。
+- 不在 project root 建立 output 或 outputs；產物放所屬 benchmark／實驗目錄。
+- 依任務、資料來源、用途與執行批次分層；新 task 沿用既有規則，不在同層堆疊任意名稱。
+- 原始下載、處理後示範、訓練結果與評估結果分開；每批影片集中存放，不與資料檔混排。
+- 使用明確且可區分的批次目錄，不覆寫舊結果；程式直接使用 args 指定的完整位置。
+- 配對資料與 metadata 不拆散，搬動後更新來源及產物引用，並驗證檔案內容與數量。
+- 大型資料、checkpoint、影片、log、快取與生成結果不加入 Git。
+- 遞迴移動或刪除前，驗證解析後的絕對路徑與歸屬；使用單一 shell 的原生檔案操作，避免波及正式資料。
 
-- 環境由使用者自行處理；除非使用者另行要求，不建立／修改 conda 環境、不安裝套件、不啟動訓練。
-- 搬入的程式依賴 PyTorch 與 Gymnasium；`train.sh` 保留來源的 conda 環境設定，不在搬移時自動執行。
-- `gpu-base` 已於 2026-10-14 通過 GPU 矩陣運算、CPU 結果比對與反向傳播驗證。可重建的環境規格位於 `envs/gpu-base.yml`（Python 3.11 與固定 pip 套件版本；系統套件由 conda 依平台解析，GPU PyTorch 適用於支援的 Windows／Linux NVIDIA 環境）；重建／clone 命令見 README。基底未安裝 NumPy 與 Gymnasium，實驗需要時在獨立環境補上。不要修改基底環境；除非使用者要求，僅使用已有環境進行必要驗證。
-- 執行與變更相符的驗證；搬移時可檢查來源檔案一致性、Python 語法與 import 路徑，不必啟動完整訓練。
+## 訓練與評估
 
-# 專案命令執行方式
+- 先按完整 episode 切分訓練／驗證，再建立視窗；不能跨 episode，正規化統計只由訓練集計算並隨 checkpoint 儲存。
+- 明確定義觀測歷史與未來動作的時間對齊，有限值補齊邊界並以 mask 排除無效目標。
+- 觀測順序、動作尺度、controller 與模擬設定須在資料、訓練與評估間一致；推論需使用訓練時的正規化統計。
+- 保存配置、資料切分、seed、必要版本與權重，供重現與比較。
+- loss、管線可執行與任務成功率是不同驗證，不以短測試宣稱完成訓練或學會任務，也不直接比較不同目標的 loss 作為共同分數。
 
-適用範圍：以下 PowerShell、MSYS2 zsh 路徑、環境設定與沙箱替代執行方式僅適用於這台電腦（主機名稱 DESKTOP-3O29EMG）。在其他電腦上，應先檢查當地 shell、conda、git 與沙箱是否正常，不要直接套用這些固定路徑或預設使用沙箱外執行。
+## 遠端呈現
 
-## PowerShell、zsh、conda 與 git
+- 所有需要 render 的工作以 headless／offscreen 執行，將連續影格錄成影片，優先 MP4。
+- 不開 GUI 或互動 viewer，不以單張截圖替代影片；依平台選擇已確認支援的模擬與渲染 backend。
+- 驗證影片非空、影格數及播放時長合理。正式交付時提供可用的影片連結與簡短結果說明。
 
-此專案的 conda 與 git 已在 MSYS2 zsh 中驗證可用。不要假設它們存在於 PowerShell 的 PATH。
+## 測試與清理
 
-若 Codex 沙箱命令在啟動階段回報 `timed out ... connecting runner pipe-in`，這是執行器連線失敗，不能據此判定 zsh、conda 或 git 不存在。不要反覆重試相同的沙箱指令。透過工具的正式核准機制使用沙箱外 PowerShell（`sandbox_permissions: "require_escalated"`），並說明實際執行目的；這不代表沙箱已修復。
+- 自行執行與變更相符的必要驗證，確認結果後交付；文件修改只做相關文件與格式檢查，不啟動無關訓練。
+- 測試結束後清除本次建立的測試程式、資料、checkpoint、影片、log、快取與其他產出，除非使用者明確要求保留。
+- 優先使用暫存目錄，記錄資源，以 try/finally 清理，並停用 Python bytecode 寫入。
+- 只刪已確認由自己建立的測試資源；保留使用者資料、正式示範、正式模型、交付影片及上游既有測試。
+- 回覆簡述驗證與清理結果，不提供已刪除測試產物的失效連結。
 
-PowerShell 中的 `zsh` 目前解析為：
+## 本機命令執行原則
 
-```text
-C:\Users\user\AppData\Local\Microsoft\WindowsApps\zsh.cmd
-```
-
-這個啟動器會切到 `C:\Users\sheng-yu`，且不轉傳命令列參數。因此不要使用 `zsh -lc '...'` 或 `zsh -ic '...'` 執行自動化指令：即使沒有輸出且退出碼為 0，也不能視為指定命令已成功執行。
-
-改從 PowerShell 直接呼叫啟動器指向的 zsh 執行檔，設定其所需環境，並在 zsh 中明確切回專案：
-
-```powershell
-$env:HOME = 'C:\Users\sheng-yu'
-$env:TERM = 'xterm-256color'
-Remove-Item Env:GIT_DIR,Env:GIT_WORK_TREE -ErrorAction SilentlyContinue
-& 'C:\Users\sheng-yu\msys64\usr\bin\zsh.exe' -lic 'cd /d/sheng-yu/robot-learning && pwd && conda --version && git --version'
-```
-
-這裡的 HOME 是既有 zsh 啟動器所需的環境設定，不得用作暫存變數。清除 GIT_DIR 與 GIT_WORK_TREE 可避免繼承全域 Git 設定而指向錯誤儲存庫。實際作業時替換最後的檢查指令，保留明確的 `cd ... &&`，避免切換目錄失敗後仍繼續操作。
-
-2026-10-14 已驗證：工作目錄 `/d/sheng-yu/robot-learning`、conda `26.7.1`（由 .zshrc 定義的 shell function）、git `/usr/bin/git`，版本 `2.55.0`。這些是當次觀察值，日後環境可能改變。
-
-非互動工具執行 -lic 時可能出現 `can't change option: monitor` 和 `gitstatus failed to initialize`。當次 conda 與 git 仍正常執行；應檢查實際命令的輸出與退出碼，不要把提示元件初始化錯誤當成 Git 不可用，也不要為消除提示而擅自修改使用者的 .zshrc。
+- 以下設定僅適用於 DESKTOP-3O29EMG；在其他電腦先檢查當地 shell、conda、Git 與沙箱，不直接沿用固定路徑。
+- conda 與 Git 透過 MSYS2 zsh 使用，不假設位於 PowerShell 的 PATH。
+- PowerShell 的 zsh.cmd 啟動器不轉傳參數且會切換目錄；自動化不得使用它執行 zsh -lc 或 zsh -ic 命令。
+- 直接呼叫 `C:\Users\sheng-yu\msys64\usr\bin\zsh.exe`，設定 HOME 為 `C:\Users\sheng-yu`、TERM 為 xterm-256color，清除繼承的 GIT_DIR 與 GIT_WORK_TREE。
+- HOME 是啟動環境設定，不能當暫存變數；在 zsh 明確切回專案後，以成功條件串接後續操作，避免切換目錄失敗仍執行。
+- 若沙箱在啟動時回報 timed out connecting runner pipe-in，視為執行器連線問題；不要反覆重試同一沙箱指令，也不要據此判定工具不存在。透過正式核准機制以沙箱外 PowerShell 執行並說明目的，不宣稱沙箱已修復。
+- 非互動 zsh 的 monitor 或 gitstatus 初始化提示不等於命令失敗，依實際輸出及退出碼判斷；不為消除提示修改使用者的 shell 設定。

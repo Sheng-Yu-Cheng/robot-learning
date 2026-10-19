@@ -6,14 +6,14 @@ import torch
 from torch import nn
 
 from .common import initial_sample, masked_mse, observation_condition, validate_actions, validate_config
-from .networks import ConditionalUnet1D
+from .networks import ConditionalMLP, ConditionalUnet1D
 
 
 class DiffusionPolicy(nn.Module):
     def __init__(self, observation_dim: int, action_dim: int, *, observation_horizon: int = 2,
                  prediction_horizon: int = 16, action_horizon: int = 8, hidden_dim: int = 64,
                  num_train_steps: int = 100, num_inference_steps: int = 20,
-                 clip_sample: bool = True):
+                 clip_sample: bool = True, architecture: str = "unet"):
         super().__init__()
         validate_config(observation_dim, action_dim, observation_horizon, prediction_horizon, action_horizon)
         if not isinstance(num_train_steps, int) or num_train_steps < 2:
@@ -28,7 +28,12 @@ class DiffusionPolicy(nn.Module):
         self.num_train_steps = num_train_steps
         self.num_inference_steps = num_inference_steps
         self.clip_sample = clip_sample
-        self.network = ConditionalUnet1D(action_dim, observation_dim * observation_horizon, hidden_dim)
+        if architecture == 'unet':
+            self.network = ConditionalUnet1D(action_dim, observation_dim * observation_horizon, hidden_dim)
+        elif architecture == 'mlp':
+            self.network = ConditionalMLP(action_dim, observation_dim * observation_horizon, prediction_horizon, hidden_dim)
+        else:
+            raise ValueError("architecture must be 'unet' or 'mlp'")
         grid = torch.linspace(0, 1, num_train_steps + 1, dtype=torch.float64)
         cumulative = torch.cos((grid + 0.008) / 1.008 * math.pi / 2).square()
         betas = (1 - cumulative[1:] / cumulative[:-1]).clamp(max=0.999)

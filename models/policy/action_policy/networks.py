@@ -55,3 +55,33 @@ class ConditionalUnet1D(nn.Module):
         h = F.interpolate(h, size=skip.shape[-1], mode="linear", align_corners=False)
         h = self.merge(torch.cat((skip, h), dim=1))
         return self.output_proj(self.decoder(h, context)).transpose(1, 2)
+
+
+class ConditionalMLP(nn.Module):
+    """Dense sequence model with separately encoded observations and time.
+
+    Every horizon position has its own output coordinates. No action smoothing
+    or task-specific controller is applied by this learned network.
+    """
+
+    def __init__(self, action_dim, condition_dim, prediction_horizon, hidden_dim=256):
+        super().__init__()
+        self.action_dim = action_dim
+        self.horizon = prediction_horizon
+        self.observation_encoder = nn.Sequential(
+            nn.Linear(condition_dim, hidden_dim), nn.SiLU(),
+            nn.Linear(hidden_dim, hidden_dim), nn.SiLU())
+        self.register_buffer('frequencies', torch.exp(-math.log(10000) * torch.arange(16) / 15))
+        self.input_proj = nn.Linear(prediction_horizon * action_dim + hidden_dim + 32, hidden_dim)
+        self.blocks = nn.ModuleList([
+            nn.Sequential(nn.LayerNorm(hidden_dim), nn.Linear(hidden_dim, hidden_dim * 2),
+                          nn.SiLU(), nn.Linear(hidden_dim * 2, hidden_dim)) for _ in range(3)])
+        self.output_proj = nn.Linear(hidden_dim, prediction_horizon * action_dim)
+
+    def forward(self, actions, time, condition):
+        phase = time[:, None] * self.frequencies[None, :] * 100
+        context = self.observation_encoder(condition)
+        h = self.input_proj(torch.cat((actions.flatten(1), context, phase.sin(), phase.cos()), dim=-1))
+        for block in self.blocks:
+            h = h + block(h)
+        return self.output_proj(F.silu(h)).reshape(-1, self.horizon, self.action_dim)

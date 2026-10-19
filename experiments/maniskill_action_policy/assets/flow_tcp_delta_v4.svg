@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1050" viewBox="0 0 1600 1050">
+<rect width="100%" height="100%" fill="white"/>
+<text x="800" y="50" text-anchor="middle" font-family="Arial" font-size="30" font-weight="700" fill="#20334d">TCP Delta Position | data, learning and closed-loop execution</text>
+<text x="800" y="88" text-anchor="middle" font-family="Arial" font-size="22" font-weight="400" fill="#20334d">Action I/O changes: joint delta [8] -&gt; TCP translation + gripper [4]</text>
+<text x="800" y="139" text-anchor="middle" font-family="Arial" font-size="22" font-weight="700" fill="#20334d">DEMONSTRATION CONVERSION</text>
+<rect x="40" y="160" width="340" height="185" rx="12" fill="#e0f1e8" stroke="#526b85" stroke-width="2"/>
+<text x="210.0" y="199" text-anchor="middle" font-family="Arial" font-size="23" font-weight="700" fill="#20334d">Original expert references</text>
+<text x="210.0" y="235" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Absolute arm targets [T,7]</text>
+<text x="210.0" y="264" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">+ gripper [T,1]</text>
+<text x="210.0" y="293" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Reproducible reset seeds</text>
+<rect x="440" y="160" width="520" height="185" rx="12" fill="#e7effb" stroke="#526b85" stroke-width="2"/>
+<text x="700.0" y="199" text-anchor="middle" font-family="Arial" font-size="23" font-weight="700" fill="#20334d">replay.py | physical conversion</text>
+<text x="700.0" y="235" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">FK(absolute arm target) -&gt; desired TCP</text>
+<text x="700.0" y="264" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Subtract current TCP in robot-root frame</text>
+<text x="700.0" y="293" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Scale by native bounds; clip; execute</text>
+<text x="700.0" y="322" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Optional recovery labels / behavior separated</text>
+<rect x="1020" y="160" width="540" height="185" rx="12" fill="#fff0d6" stroke="#526b85" stroke-width="2"/>
+<text x="1290.0" y="199" text-anchor="middle" font-family="Arial" font-size="23" font-weight="700" fill="#20334d">Native TCP controller + simulation</text>
+<text x="1290.0" y="235" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">pd_ee_delta_pos: 3 translation + gripper</text>
+<text x="1290.0" y="264" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Native IK -&gt; joint PD -&gt; actual state</text>
+<text x="1290.0" y="293" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Save only successful episodes + MP4</text>
+<text x="1290.0" y="322" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">obs [T+1,42], actions [T,4], controller metadata</text>
+<polyline points="380,250 440,250" fill="none" stroke="#526b85" stroke-width="3"/>
+<polygon points="440,250 429.4690092573155,255.75310646325045 429.4690092573155,244.24689353674955" fill="#526b85"/>
+<polyline points="960,250 1020,250" fill="none" stroke="#526b85" stroke-width="3"/>
+<polygon points="1020,250 1009.4690092573155,255.75310646325045 1009.4690092573155,244.24689353674955" fill="#526b85"/>
+<text x="800" y="407" text-anchor="middle" font-family="Arial" font-size="22" font-weight="700" fill="#20334d">TRAINING</text>
+<rect x="40" y="430" width="420" height="185" rx="12" fill="#e7effb" stroke="#526b85" stroke-width="2"/>
+<text x="250.0" y="469" text-anchor="middle" font-family="Arial" font-size="23" font-weight="700" fill="#20334d">data.py</text>
+<text x="250.0" y="505" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Source-group episode split</text>
+<text x="250.0" y="534" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Training-only normalization</text>
+<text x="250.0" y="563" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Observation history [B,2,42]</text>
+<text x="250.0" y="592" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Action windows [B,8,4] + masks</text>
+<rect x="530" y="430" width="600" height="185" rx="12" fill="#eee5f8" stroke="#526b85" stroke-width="2"/>
+<text x="830.0" y="469" text-anchor="middle" font-family="Arial" font-size="23" font-weight="700" fill="#20334d">FlowMatchingPolicy | ConditionalMLP</text>
+<text x="830.0" y="505" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Input: A_t [B,8,4], time t, history [B,84]</text>
+<text x="830.0" y="534" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Same MLP design; action input/output resize</text>
+<text x="830.0" y="563" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Predict clean endpoint [B,8,4]</text>
+<text x="830.0" y="592" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Loss: masked endpoint MSE + 0.2 delta MSE</text>
+<rect x="1200" y="430" width="360" height="185" rx="12" fill="#fff0d6" stroke="#526b85" stroke-width="2"/>
+<text x="1380.0" y="469" text-anchor="middle" font-family="Arial" font-size="23" font-weight="700" fill="#20334d">Checkpoint</text>
+<text x="1380.0" y="505" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">EMA weights + normalization</text>
+<text x="1380.0" y="534" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Controller metadata</text>
+<text x="1380.0" y="563" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Closed-loop development selection</text>
+<text x="1380.0" y="592" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Final test seeds kept separate</text>
+<polyline points="1290,345 1290,370 250,370 250,430" fill="none" stroke="#526b85" stroke-width="3"/>
+<polygon points="250,430 244.24689353674955,419.4690092573155 255.75310646325045,419.4690092573155" fill="#526b85"/>
+<polyline points="460,520 530,520" fill="none" stroke="#526b85" stroke-width="3"/>
+<polygon points="530,520 519.4690092573155,525.7531064632504 519.4690092573155,514.2468935367496" fill="#526b85"/>
+<polyline points="1130,520 1200,520" fill="none" stroke="#526b85" stroke-width="3"/>
+<polygon points="1200,520 1189.4690092573155,525.7531064632504 1189.4690092573155,514.2468935367496" fill="#526b85"/>
+<text x="800" y="677" text-anchor="middle" font-family="Arial" font-size="22" font-weight="700" fill="#20334d">INFERENCE | observation [1,42], action [1,4]</text>
+<rect x="40" y="710" width="340" height="185" rx="12" fill="#e7effb" stroke="#526b85" stroke-width="2"/>
+<text x="210.0" y="749" text-anchor="middle" font-family="Arial" font-size="23" font-weight="700" fill="#20334d">PickCube-v1 task</text>
+<text x="210.0" y="785" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Fresh CPU scene each episode</text>
+<text x="210.0" y="814" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Current observation [1,42]</text>
+<text x="210.0" y="843" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Headless CPU RGB -&gt; MP4</text>
+<text x="210.0" y="872" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Native task success metrics</text>
+<rect x="440" y="710" width="520" height="185" rx="12" fill="#eee5f8" stroke="#526b85" stroke-width="2"/>
+<text x="700.0" y="749" text-anchor="middle" font-family="Arial" font-size="23" font-weight="700" fill="#20334d">History -&gt; policy -&gt; decode</text>
+<text x="700.0" y="785" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Normalize history [1,2,42]</text>
+<text x="700.0" y="814" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">ConditionalMLP + 20-step Euler sampling</text>
+<text x="700.0" y="843" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Predict [1,8,4]; execute first 2 actions</text>
+<text x="700.0" y="872" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Undo saved action normalization</text>
+<rect x="1020" y="710" width="540" height="185" rx="12" fill="#fff0d6" stroke="#526b85" stroke-width="2"/>
+<text x="1290.0" y="749" text-anchor="middle" font-family="Arial" font-size="23" font-weight="700" fill="#20334d">Native TCP position controller</text>
+<text x="1290.0" y="785" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">a = [dx, dy, dz, gripper] in [-1,1]</text>
+<text x="1290.0" y="814" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Translation: each axis up to +/-0.1 m / step</text>
+<text x="1290.0" y="843" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">Current orientation retained; no rotation output</text>
+<text x="1290.0" y="872" text-anchor="middle" font-family="Arial" font-size="19" font-weight="400" fill="#20334d">IK and gripper control -&gt; physical robot</text>
+<polyline points="1380,615 1380,675 700,675 700,710" fill="none" stroke="#526b85" stroke-width="3"/>
+<polygon points="700,710 694.2468935367496,699.4690092573155 705.7531064632504,699.4690092573155" fill="#526b85"/>
+<polyline points="380,800 440,800" fill="none" stroke="#526b85" stroke-width="3"/>
+<polygon points="440,800 429.4690092573155,805.7531064632504 429.4690092573155,794.2468935367496" fill="#526b85"/>
+<polyline points="960,800 1020,800" fill="none" stroke="#526b85" stroke-width="3"/>
+<polygon points="1020,800 1009.4690092573155,805.7531064632504 1009.4690092573155,794.2468935367496" fill="#526b85"/>
+<polyline points="1290,895 1290,950 210,950 210,895" fill="none" stroke="#526b85" stroke-width="3"/>
+<polygon points="210,895 215.75310646325045,905.5309907426845 204.24689353674955,905.5309907426845" fill="#526b85"/>
+<text x="800" y="1000" text-anchor="middle" font-family="Arial" font-size="20" font-weight="400" fill="#20334d">State stays 42D. No scripted policy or evaluation-time expert reference. Old joint checkpoints remain joint policies.</text>
+</svg>
