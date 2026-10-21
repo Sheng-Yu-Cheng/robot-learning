@@ -25,7 +25,8 @@ class SelfAttentionHead(nn.Module):
 
 
 class MultiHeadSelfAttention(nn.Module):
-    # W @ softmax(q @ k^T / sqrt(dk)) @ v
+    # h_i = softmax(q_i @ k_i^T / sqrt(dk)) @ v_i
+    # MHA(x) = [h_1, h_2, h_3 ... h_n] @ W
     def __init__(self, latent_dim: int, head_amount: int):
         assert latent_dim % head_amount == 0
         super().__init__()
@@ -85,4 +86,44 @@ class PositionalEncoding(nn.Module):
     def __init__(self, latent_dim: int, max_len: int = 1024):
         super().__init__()
         assert latent_dim % 2 == 0
-        
+        positions = torch.arange(max_len).float().unsqueeze(1)
+        frequencies = torch.exp(torch.arange(0, latent_dim, 2).float() * (- math.log(10000.0) / latent_dim))
+        positional_encoding = torch.zeros(max_len, latent_dim)
+        positional_encoding[:, 0::2] = torch.sin(positions * frequencies)
+        positional_encoding[:, 1::2] = torch.cos(positions * frequencies)
+        self.register_buffer("positional_encoding", positional_encoding.unsqueeze(0)) 
+    
+    def forward(self, x: Float[Tensor, "batch seq_len latent_dim"]) -> Float[Tensor, "batch seq_len latent_dim"]:
+        return x + self.positional_encoding[:, :x.shape[1], :].to(dtype = x.dtype)
+    
+
+class SequenceRegressor(nn.Module):
+    def __init__(
+        self, 
+        input_dim, 
+        latent_dim, 
+        head_amount, 
+        layer_amount, 
+        max_len, 
+    ):
+        super().__init__()
+        self.embedding = nn.Linear(input_dim, latent_dim)
+        self.positional_encoding = PositionalEncoding(latent_dim = latent_dim, max_len = max_len)
+        self.transformer_blocks = nn.ModuleList([
+            TransformerBlock(
+                latent_dim = latent_dim, 
+                head_amount = head_amount, 
+                activation = nn.GELU
+            ) for _ in range(layer_amount)
+        ])
+        self.final_norm = LayerNorm(latent_dim)
+        self.output_head = nn.Linear(latent_dim, 1)
+    
+    def forward(self, x: Float[Tensor, "batch seq_len input_dim"]) -> Float[Tensor, "batch 1"]:
+        h: Float[Tensor, "batch seq_len latent_dim"] = self.embedding(x)
+        h: Float[Tensor, "batch seq_len latent_dim"] = self.positional_encoding(h)
+        for block in self.transformer_blocks:
+            h: Float[Tensor, "batch seq_len latent_dim"] = block(h)
+        h: Float[Tensor, "batch seq_len latent_dim"] = self.final_norm(h)
+        h: Float[Tensor, "batch latent_dim"] = h.mean(dim = 1)
+        return self.output_head(h)
