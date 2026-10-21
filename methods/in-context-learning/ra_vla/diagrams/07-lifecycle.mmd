@@ -1,0 +1,15 @@
+stateDiagram-v2
+  [*] --> DataPrepared
+  DataPrepared --> RetrieverReady : Train retriever on training tasks
+  RetrieverReady --> TrainingMemoryReady : Cache training-task segments
+  TrainingMemoryReady --> PolicyReady : Train head with relevant and rolled contexts
+  PolicyReady --> HeldOutMemoryReady : Cache held-out demos using fixed retriever and training normalization
+  HeldOutMemoryReady --> Serving : Load policy, metadata, retriever and held-out memory
+  Serving --> ActionRefinement : Observation and task request
+  ActionRefinement --> Serving : Return decoded action chunk; no weight update
+  Serving --> EvaluationRecorded : Complete episodes and save videos/logs
+  EvaluationRecorded --> [*]
+  note right of HeldOutMemoryReady
+    Separate memory_name values preserve train/eval buffers.
+    CLI scripts do not construct or enforce the task split.
+  end note

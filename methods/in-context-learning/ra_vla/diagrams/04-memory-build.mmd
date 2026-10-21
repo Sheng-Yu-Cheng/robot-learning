@@ -1,0 +1,26 @@
+sequenceDiagram
+  participant CLI as 2_build_memory.main
+  participant DS as LeRobotMixtureDataset
+  participant KEY as get_key_frames
+  participant COL as DefaultDataCollator
+  participant RET as Frozen retriever
+  participant VLM as Frozen GR00T backbone
+  participant MEM as memory dictionary
+  CLI->>DS: Load datasets and retriever metadata
+  CLI->>DS: transforms.eval; last GR00TTransform.train
+  loop Every dataset and task description
+    CLI->>KEY: Select N trajectories, default random; sample stride frames
+    KEY->>DS: get_step_data(trajectory, frame) and transforms
+    KEY-->>CLI: Key frames with action chunks
+    loop Batches of at most 100 key frames
+      CLI->>COL: Collate key frames
+      COL-->>CLI: Pixels, language tokens, normalized action chunks
+      CLI->>RET: Encode unit keys without gradients
+      RET-->>CLI: keys M_batch x 512
+      CLI->>VLM: Encode each segment independently without gradients
+      VLM-->>CLI: backbone_features and backbone_attention_mask
+      CLI->>MEM: Append pixels, actions, keys, features, masks
+    end
+    CLI->>MEM: Concatenate each list; memory[task] = tensors
+  end
+  CLI->>MEM: torch.save to retriever_path / memory_name.pt

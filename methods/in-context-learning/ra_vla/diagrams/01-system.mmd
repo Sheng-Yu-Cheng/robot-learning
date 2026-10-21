@@ -1,0 +1,33 @@
+flowchart TB
+  subgraph OFF[Offline preparation and supervised training]
+    DATA[LeRobot demonstrations by task and episode]
+    PRE[LiberoDataConfig transforms<br/>2 RGB views; state 8 to 64; actions 7 to 32]
+    PAIR[AlignedFramesBatchSampler<br/>DTW on same-task action trajectories]
+    RETTRAIN[Train RetrieverWrapperWithHead<br/>Linear + 2-layer BERT encoder<br/>masked mean pooling + L2 normalization]
+    MEM[Build task-indexed memory<br/>keys M x 512; actions M x 16 x 32<br/>cached VLM features and masks]
+    TRAIN[RAVLAActionHead training<br/>retrieved-mean flow initialization<br/>RAVLADiT + embodiment-specific MLP decoder<br/>masked MSE + contextual margin]
+    CKPT[Policy checkpoint + metadata.pt<br/>retriever and memory saved separately]
+    DATA --> PRE
+    PRE --> PAIR --> RETTRAIN --> MEM
+    PRE --> MEM
+    PRE --> TRAIN
+    MEM --> TRAIN --> CKPT
+  end
+  subgraph ON[Online inference; no weight updates]
+    ENV[LIBERO OffScreenRenderEnv<br/>RGB agent view and wrist view<br/>EEF position; axis-angle; 2 gripper joints; instruction]
+    OBS[GR00TPolicy observation conversion<br/>rotate both images 180 degrees<br/>VLAPolicy transform and collate]
+    QUERY[Frozen visual encoder + text embeddings<br/>retriever query B x 512]
+    TOP[Exact dot-product top-K<br/>within memory for matching task string]
+    VLM[Frozen Eagle VLM<br/>current features B x S x Dv]
+    HEAD[RAVLAActionHead / RAVLADiT<br/>16 alternating cross/self blocks assumed<br/>current + one retrieved segment per cross layer<br/>4 Euler steps by serving default]
+    DECODE[Embodiment-specific MLP velocity decoder<br/>normalized chunk B x 16 x 32<br/>inverse normalization to 16 x 7]
+    CTRL[LIBERO adapter uses only chunk index 0<br/>7 controls: delta position, delta rotation, gripper<br/>gripper sign of 1 minus 2g]
+    ENV --> OBS
+    OBS --> QUERY --> TOP --> HEAD
+    OBS --> VLM --> HEAD --> DECODE --> CTRL
+    CTRL -->|env.step: next observation, reward, done, info| ENV
+  end
+  RETTRAIN -. frozen retriever .-> QUERY
+  MEM -. cached context .-> TOP
+  CKPT -. loaded policy and normalization .-> HEAD
+  CKPT -. transform metadata .-> OBS

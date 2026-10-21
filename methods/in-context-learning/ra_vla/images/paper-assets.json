@@ -1,0 +1,144 @@
+{
+  "source_pdf": "RA-VLA Retrieval-Augmented VLA for Test-Time Adaptation.pdf",
+  "source_sha256": "094b6cf7b44aa70394e6734bf0ce048bbe9177db955d8e09d25fb6813c92ad4b",
+  "pdf_pages": 18,
+  "render_dpi": 200,
+  "coordinate_system": "PDF points, top-left origin; [left, top, right, bottom]",
+  "figures": [
+    {
+      "number": 1,
+      "page": 1,
+      "crop_points": [
+        316,
+        172,
+        539,
+        368
+      ],
+      "file": "figure-01.png",
+      "sha256": "34a560a9374639d1c5310bba3fb32de1881edd0d1fb8a97ac0113376c4dda165"
+    },
+    {
+      "number": 2,
+      "page": 4,
+      "crop_points": [
+        55,
+        65,
+        541,
+        278
+      ],
+      "file": "figure-02.png",
+      "sha256": "14d23796c371c6a3cd904cb671ec29035e0a26775f98d2b9dbb36b51663430a6"
+    },
+    {
+      "number": 3,
+      "page": 7,
+      "crop_points": [
+        70,
+        66,
+        535,
+        298
+      ],
+      "file": "figure-03.png",
+      "sha256": "3d4d4df3480c2c6b62ae08d8776cb2262643f8957d81c0c6ebcc3de6201025bc"
+    },
+    {
+      "number": 4,
+      "page": 8,
+      "crop_points": [
+        55,
+        69,
+        294,
+        417
+      ],
+      "file": "figure-04.png",
+      "sha256": "547de3f6edb44c1e0f8d1e154db4a7bfa75e3818924957e71200048aff318240"
+    },
+    {
+      "number": 5,
+      "page": 8,
+      "crop_points": [
+        305,
+        66,
+        544,
+        178
+      ],
+      "file": "figure-05.png",
+      "sha256": "773957e998433fe271230020e6fcbc1485642f7d0362fcebac0647907000c2ab"
+    },
+    {
+      "number": 6,
+      "page": 14,
+      "crop_points": [
+        65,
+        365,
+        538,
+        624
+      ],
+      "file": "figure-06.png",
+      "sha256": "04decab39dbc4c1baba2c9bd717d61afd75c7f590d531c617fa373155705c9c0"
+    },
+    {
+      "number": 7,
+      "page": 15,
+      "crop_points": [
+        65,
+        205,
+        538,
+        541
+      ],
+      "file": "figure-07.png",
+      "sha256": "4f7d71a9ce16ff4e8bee776d44e9a3436419e5ae95b7e78527c0094e20ea1f4f"
+    },
+    {
+      "number": 8,
+      "page": 16,
+      "crop_points": [
+        65,
+        205,
+        538,
+        540
+      ],
+      "file": "figure-08.png",
+      "sha256": "457b1b0e806ba0ae9c1b6145d8863e837e2e575cf21ec51a05e539f5fc6fd40a"
+    },
+    {
+      "number": 9,
+      "page": 17,
+      "crop_points": [
+        65,
+        205,
+        538,
+        540
+      ],
+      "file": "figure-09.png",
+      "sha256": "95e0820487d1c2837ae208437978ba6554fb3c1cfe11feb720acb8d178612a4d"
+    },
+    {
+      "number": 10,
+      "page": 18,
+      "crop_points": [
+        65,
+        73,
+        538,
+        456
+      ],
+      "file": "figure-10.png",
+      "sha256": "f7193e48071b8fc52c22c5e0df4ef8737817571064bc01c0c04f8b13dc88575f"
+    },
+    {
+      "number": 11,
+      "page": 18,
+      "crop_points": [
+        100,
+        512,
+        495,
+        671
+      ],
+      "file": "figure-11.png",
+      "sha256": "a048b7ec3a924c6f597785ff4450a3d76d669896c19c33dfc2b16d315223982a"
+    }
+  ],
+  "tables": 5,
+  "numbered_equations": 10,
+  "notes": "Figure crops preserve complete visual compositions, raster frames, vector graphics and internal labels. Captions are transcribed in ravla.md. Figures 4 and 5 share page 8; figures 10 and 11 share page 18."
+}

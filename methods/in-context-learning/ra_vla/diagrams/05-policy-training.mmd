@@ -1,0 +1,28 @@
+sequenceDiagram
+  participant CLI as 3_train_ravla.main
+  participant MODEL as RAVLA
+  participant RET as Frozen retriever and task memory
+  participant VLM as Frozen Eagle backbone
+  participant HEAD as RAVLAActionHead
+  participant DIT as RAVLADiT
+  participant OPT as AdamW
+  CLI->>MODEL: Load base checkpoint; attach retriever/cache; init new weights
+  loop Epochs and shuffled full batches
+    CLI->>MODEL: forward(current frames and expert actions)
+    MODEL->>RET: Query key; task-local exact top-K
+    RET-->>MODEL: K action chunks and cached feature tensors
+    MODEL->>VLM: Current multimodal input
+    VLM-->>HEAD: Current features and mask
+    MODEL->>HEAD: State, target actions, masks, retrieved context
+    HEAD->>HEAD: A0 = mean of K retrieved action chunks
+    HEAD->>HEAD: Sample t; At = t Aexpert + (1-t) A0; target v = Aexpert - A0
+    HEAD->>HEAD: Encode state, future tokens, noisy and retrieved actions
+    HEAD->>DIT: Relevant context forward
+    DIT-->>HEAD: Hidden states to velocity decoder
+    HEAD->>DIT: Same current inputs; context rolled by K rows
+    DIT-->>HEAD: Irrelevant-context hidden states to decoder
+    HEAD->>HEAD: Channel-masked MSE and per-sample margin loss
+    HEAD-->>CLI: loss = mse_loss + lambda * margin_loss
+    CLI->>OPT: Backward; clip; step; scheduler; zero gradients
+  end
+  CLI->>MODEL: save_pretrained(checkpoint_epoch); save metadata

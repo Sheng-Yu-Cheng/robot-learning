@@ -1,0 +1,30 @@
+sequenceDiagram
+  participant CLI as 1_train_retriever.main
+  participant DS as FramePathsMixtureDataset
+  participant SAM as AlignedFramesBatchSampler
+  participant DTW as get_aligned_frame_ids
+  participant COL as DefaultDataCollator
+  participant VLA as Frozen GR00T / Eagle
+  participant RET as RetrieverWrapperWithHead
+  participant OPT as AdamW and cosine scheduler
+  CLI->>DS: Create cached datasets; merge and save metadata
+  CLI->>SAM: num_trajs, num_frames, num_iterations
+  loop Each configured iteration
+    SAM->>DS: Select tasks and two trajectories per selected task
+    SAM->>DTW: Action trajectories from the same task
+    DTW-->>SAM: DTW pairs; unique first index; sample ordered frame pairs
+    SAM-->>DS: Indices ordered as first views then paired second views
+    DS->>COL: Transformed frames
+    COL-->>CLI: Batch with 2 * num_trajs * num_frames samples
+    CLI->>RET: forward(vla, batch)
+    RET->>VLA: Vision features and text input embeddings under no_grad
+    VLA-->>RET: Image-token slots replaced by visual embeddings
+    RET->>RET: Linear, BERT encoder, masked mean, L2 normalize
+    RET-->>CLI: Unit keys Z with shape batch x 512
+    CLI->>RET: compute_simclr_loss(Z, temperature)
+    RET->>RET: logits = Z Z transpose / temperature; mask diagonal
+    RET->>RET: Positive target = index shifted by half a batch
+    RET-->>CLI: Cross-entropy scalar
+    CLI->>OPT: Backward; clip; step; scheduler; zero gradients
+  end
+  CLI->>RET: save_pretrained(retriever_path)

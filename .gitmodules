@@ -1,3 +1,6 @@
 [submodule "benchmark/maniskill/maniskill"]
 	path = benchmark/maniskill/maniskill
 	url = https://github.com/mani-skill/ManiSkill.git
+[submodule "methods/in-context-learning/ra_vla/RA-VLA"]
+	path = methods/in-context-learning/ra_vla/RA-VLA
+	url = https://github.com/ngocdaobao/RA-VLA.git
