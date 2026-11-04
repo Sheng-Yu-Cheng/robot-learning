@@ -1,0 +1,34 @@
+sequenceDiagram
+  participant ENV as LIBERO OffScreenRenderEnv
+  participant AD as GR00TPolicy adapter
+  participant RPC as ZeroMQ REQ / REP
+  participant POL as VLAPolicy
+  participant MOD as RAVLA
+  participant RET as Retriever and task memory
+  participant HEAD as RAVLAActionHead and RAVLADiT
+  AD->>ENV: reset; initial state; no-op settling steps
+  loop Until done or step limit
+    ENV-->>AD: Two RGB views, EEF pose, two gripper joints
+    AD->>AD: Rotate RGB 180 degrees; quaternion to axis-angle; task text
+    AD->>RPC: get_action(observation dictionary)
+    RPC->>POL: Dispatch get_action
+    POL->>POL: Checkpoint normalization; resize; concat; pad; collate
+    POL->>MOD: get_action(normalized inputs)
+    MOD->>RET: Query embedding and matching task description
+    RET-->>MOD: Top-K actions and cached VLM features
+    MOD->>HEAD: Current VLM features, state, retrieved context
+    HEAD->>HEAD: Initialize action chunk from retrieved mean
+    loop denoising_steps, serving default 4
+      HEAD->>HEAD: DiT velocity conditioned on current and retrieved tokens
+      HEAD->>HEAD: actions = actions + velocity / denoising_steps
+    end
+    HEAD-->>POL: Normalized chunk 1 x 16 x 32
+    POL->>POL: Unapply transforms; trim padding; inverse normalization
+    POL-->>RPC: Seven named action components for 16 timesteps
+    RPC-->>AD: Action chunk
+    AD->>AD: Select timestep 0; gripper = sign(1 - 2g)
+    AD->>ENV: step(7-dimensional control)
+    ENV-->>AD: Next observation, reward, done, info
+    AD->>AD: Buffer both views for MP4
+  end
+  AD->>AD: Save side-by-side MP4 at 30 fps and success log

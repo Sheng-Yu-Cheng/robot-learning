@@ -1,0 +1,67 @@
+classDiagram
+  class LeRobotMixtureDataset
+  class FramePathsMixtureDataset {
+    +all_frame_paths
+    +all_frame_paths_inverted
+    +__getitem__(index)
+  }
+  class AlignedFramesBatchSampler {
+    +__iter__()
+  }
+  class BertPreTrainedModel
+  class RetrieverWrapperWithHead {
+    +linear
+    +encoder
+    +forward(vla, inputs)
+    +average_pooling(hidden, mask)
+    +compute_simclr_loss(embeds, temperature)
+  }
+  class GR00T_N1_5 {
+    +backbone
+    +prepare_input(inputs)
+    +from_pretrained(path)
+  }
+  class RAVLA {
+    +retriever : list
+    +memory : dict
+    +k : int
+    +set_retrieval_components(retriever, memory, k)
+    +augment_inputs(inputs)
+    +forward(inputs)
+    +get_action(inputs)
+  }
+  class FlowmatchingActionHead
+  class RAVLAActionHead {
+    +ret_action_encoder
+    +ret_position_embedding
+    +forward(backbone_output, action_input)
+    +get_action(backbone_output, action_input)
+  }
+  class DiT
+  class RAVLADiT {
+    +forward(hidden_states, context, timestep)
+  }
+  class DefaultDataCollator
+  class RAVLADataCollator {
+    +__call__(features)
+  }
+  class BasePolicy
+  class VLAPolicy {
+    +get_action(observations)
+    +get_modality_config()
+  }
+  class RobotInferenceServer
+  LeRobotMixtureDataset <|-- FramePathsMixtureDataset
+  AlignedFramesBatchSampler --> FramePathsMixtureDataset : indexes aligned frames
+  BertPreTrainedModel <|-- RetrieverWrapperWithHead
+  GR00T_N1_5 <|-- RAVLA
+  FlowmatchingActionHead <|-- RAVLAActionHead
+  DiT <|-- RAVLADiT
+  DefaultDataCollator <|-- RAVLADataCollator
+  BasePolicy <|-- VLAPolicy
+  RAVLA *-- RAVLAActionHead : action_head
+  RAVLAActionHead *-- RAVLADiT : model
+  RAVLA --> RetrieverWrapperWithHead : list-held frozen reference
+  VLAPolicy --> RAVLA : vla
+  VLAPolicy --> RAVLADataCollator : collator
+  RobotInferenceServer --> VLAPolicy : registered endpoints
