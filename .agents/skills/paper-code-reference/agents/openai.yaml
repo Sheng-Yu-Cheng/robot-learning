@@ -1,0 +1,4 @@
+interface:
+  display_name: "Paper and Code Reference"
+  short_description: "Transcribe papers and trace code with UML"
+  default_prompt: "Use $paper-code-reference to create a complete Markdown paper copy and/or source-grounded code guide with UML in the chosen destination."
