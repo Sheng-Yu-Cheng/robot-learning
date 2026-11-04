@@ -1,3 +1,6 @@
 [submodule "benchmark/maniskill/maniskill"]
 	path = benchmark/maniskill/maniskill
 	url = https://github.com/mani-skill/ManiSkill.git
+[submodule "benchmark/rlbench"]
+	path = benchmark/rlbench
+	url = https://github.com/stepjam/RLBench.git
